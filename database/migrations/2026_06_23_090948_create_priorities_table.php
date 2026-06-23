@@ -11,10 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('priorities', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+Schema::create('priorities', function (Blueprint $table) {
+    $table->id();
+    $table->string('name')->unique(); // LOW, MEDIUM, HIGH, CRITICAL
+
+    $table->integer('sla_response_minutes');
+    $table->integer('sla_resolution_minutes');
+
+    $table->timestamps();
+});
     }
 
     /**
