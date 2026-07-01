@@ -43,7 +43,13 @@ class TicketMessage extends Model
         );
     }
 
-
+public function replyTo(): BelongsTo
+{
+    return $this->belongsTo(
+        TicketMessage::class,
+        'parent_message_id'
+    );
+}
     // Balasan dari pesan ini
     public function replies(): HasMany
     {

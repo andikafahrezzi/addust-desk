@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Priority;
 use App\Http\Requests\StoreTicketRequest;
@@ -13,9 +14,18 @@ use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
 {
-    public function index()
+public function index()
 {
-    return "My Tickets";
+    $tickets = Ticket::with([
+            'category',
+            'priority',
+            'currentDepartment'
+        ])
+        ->where('created_by', Auth::id())
+        ->latest()
+        ->paginate(10);
+
+    return view('tickets.index', compact('tickets'));
 }
 public function create()
 {
@@ -23,7 +33,7 @@ public function create()
 
     $priorities = Priority::orderBy('id')->get();
 
-    return view('user.tickets.create', compact(
+    return view('tickets.create', compact(
         'categories',
         'priorities'
     ));
@@ -78,4 +88,77 @@ public function create()
             'Ticket successfully created.'
         );
 }
+public function show(Ticket $ticket)
+{
+    abort_if(
+        $ticket->created_by !== Auth::id(),
+        403
+    );
+
+    $ticket->load([
+        'category',
+        'priority',
+        'currentDepartment',
+        'currentHandler',
+    ]);
+
+$messages = $ticket->messages()
+    ->with([
+        'sender.role',
+        'replyTo.sender.role',
+    ])
+    ->oldest()
+    ->paginate(30);
+
+    return view(
+        'tickets.show',
+        compact(
+            'ticket',
+            'messages'
+        )
+    );
+}
+public function storeMessage(Request $request, Ticket $ticket)
+{
+    abort_if(
+        $ticket->created_by !== Auth::id(),
+        403
+    );
+
+    if (in_array($ticket->status, [
+        'RESOLVED',
+        'CLOSED'
+    ])) {
+        abort(403);
+    }
+
+$validated = $request->validate([
+    'message' => 'required|string|max:5000',
+
+    'parent_message_id' => [
+        'nullable',
+        'exists:ticket_messages,id',
+    ],
+]);
+if (!empty($validated['parent_message_id'])) {
+
+    $parentMessage = TicketMessage::where('id', $validated['parent_message_id'])
+        ->where('ticket_id', $ticket->id)
+        ->first();
+
+    abort_if(!$parentMessage, 403);
+
+}
+
+TicketMessage::create([
+    'ticket_id' => $ticket->id,
+    'sender_id' => Auth::id(),
+    'parent_message_id' => $validated['parent_message_id'],
+    'message' => $validated['message'],
+]);
+        return back()->with(
+            'success',
+            'Message sent.'
+        );
+    }
 }

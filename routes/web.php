@@ -82,5 +82,13 @@ Route::middleware(['auth', 'role:ADMIN'])
                 '/tickets',
                 [TicketController::class, 'index']
             )->name('tickets.index');
+            Route::get(
+                '/tickets/{ticket}',
+                [TicketController::class, 'show']
+            )->name('tickets.show');
+            Route::post(
+                '/tickets/{ticket}/messages',
+                [TicketController::class, 'storeMessage']
+            )->name('tickets.messages.store');
 });
 require __DIR__.'/auth.php';
