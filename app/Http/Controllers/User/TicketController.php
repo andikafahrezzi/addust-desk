@@ -161,4 +161,62 @@ TicketMessage::create([
             'Message sent.'
         );
     }
+   public function updateMessage(
+    Request $request,
+    TicketMessage $message
+)
+{
+    abort_if(
+        $message->sender_id !== Auth::id(),
+        403
+    );
+
+    abort_if(
+        $message->ticket->status === 'CLOSED',
+        403
+    );
+
+    $validated = $request->validate([
+        'message' => [
+            'required',
+            'string',
+            'max:5000',
+        ],
+    ]);
+
+    $message->update([
+        'message' => $validated['message'],
+        'edited_at' => now(),
+    ]);
+
+    return back()->with(
+        'success',
+        'Message updated.'
+    );
+}
+public function deleteMessage(
+    TicketMessage $message
+)
+{
+    abort_if(
+        $message->sender_id !== Auth::id(),
+        403
+    );
+
+    abort_if(
+        $message->ticket->status === 'CLOSED',
+        403
+    );
+$message->update([
+    'message' => '[deleted]',
+    'deleted_at' => now(),
+    'deleted_by' => Auth::id(),
+]);
+  
+
+    return back()->with(
+        'success',
+        'Message deleted.'
+    );
+}
 }

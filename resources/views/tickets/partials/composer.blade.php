@@ -119,4 +119,40 @@ document
 
     });
 
+    document.querySelectorAll('.edit-btn').forEach(button => {
+
+    button.addEventListener('click', function () {
+
+        const id = this.dataset.id;
+
+        document
+            .getElementById('message-display-' + id)
+            .classList.add('hidden');
+
+        document
+            .getElementById('message-edit-' + id)
+            .classList.remove('hidden');
+
+    });
+
+});
+
+document.querySelectorAll('.cancel-edit').forEach(button => {
+
+    button.addEventListener('click', function () {
+
+        const id = this.dataset.id;
+
+        document
+            .getElementById('message-display-' + id)
+            .classList.remove('hidden');
+
+        document
+            .getElementById('message-edit-' + id)
+            .classList.add('hidden');
+
+    });
+
+});
+
 </script>

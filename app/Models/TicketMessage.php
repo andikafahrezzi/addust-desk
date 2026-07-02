@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TicketMessage extends Model
 {
-    use SoftDeletes;
+
 
     protected $fillable = [
         'ticket_id',
@@ -17,6 +16,13 @@ class TicketMessage extends Model
         'message',
         'parent_message_id',
         'edited_at',
+        'deleted_at',
+        'deleted_by',
+    ];
+
+    protected $casts = [
+        'edited_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
 
@@ -68,4 +74,11 @@ public function replyTo(): BelongsTo
             'message_id'
         );
     }
+    public function deletedBy(): BelongsTo
+{
+    return $this->belongsTo(
+        User::class,
+        'deleted_by'
+    );
+}
 }

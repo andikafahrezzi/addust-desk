@@ -90,5 +90,14 @@ Route::middleware(['auth', 'role:ADMIN'])
                 '/tickets/{ticket}/messages',
                 [TicketController::class, 'storeMessage']
             )->name('tickets.messages.store');
-});
+            Route::patch(
+                '/tickets/messages/{message}',
+                [TicketController::class, 'updateMessage']
+            )->name('tickets.messages.update');
+            Route::delete(
+                '/tickets/messages/{message}',
+                [TicketController::class, 'deleteMessage']
+            )->name('tickets.messages.delete');
+        });
+        
 require __DIR__.'/auth.php';
