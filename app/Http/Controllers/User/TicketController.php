@@ -11,6 +11,8 @@ use App\Models\Ticket;
 use App\Models\TicketMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\TicketAttachment;
+use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
 {
@@ -106,6 +108,7 @@ $messages = $ticket->messages()
     ->with([
         'sender.role',
         'replyTo.sender.role',
+        'attachments',
     ])
     ->oldest()
     ->paginate(30);
@@ -139,6 +142,16 @@ $validated = $request->validate([
         'nullable',
         'exists:ticket_messages,id',
     ],
+        'attachments' => [
+        'nullable',
+        'array',
+    ],
+
+    'attachments.*' => [
+        'file',
+        'max:10240',
+        'mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx,txt,zip',
+    ]
 ]);
 if (!empty($validated['parent_message_id'])) {
 
@@ -150,17 +163,72 @@ if (!empty($validated['parent_message_id'])) {
 
 }
 
-TicketMessage::create([
+$message = TicketMessage::create([
     'ticket_id' => $ticket->id,
     'sender_id' => Auth::id(),
-    'parent_message_id' => $validated['parent_message_id'],
+    'parent_message_id' => $validated['parent_message_id'] ?? null,
     'message' => $validated['message'],
 ]);
+if ($request->hasFile('attachments')) {
+
+    foreach ($request->file('attachments') as $file) {
+
+        $storedName = uniqid('', true) . '.' . $file->getClientOriginalExtension();
+
+        $path = $file->storeAs(
+            'ticket-attachments',
+            $storedName,
+            'public'
+        );
+
+        TicketAttachment::create([
+
+            'ticket_id' => $ticket->id,
+
+            'message_id' => $message->id,
+
+            'uploaded_by' => Auth::id(),
+
+            'file_name' => $storedName,
+
+            'original_name' => $file->getClientOriginalName(),
+
+            'file_path' => $path,
+
+            'mime_type' => $file->getMimeType(),
+
+            'file_size' => $file->getSize(),
+
+        ]);
+
+    }
+
+}
         return back()->with(
             'success',
             'Message sent.'
         );
     }
+    public function downloadAttachment(
+    TicketAttachment $attachment
+)
+{
+    $ticket = $attachment->ticket;
+
+    abort_if(
+        $ticket->created_by !== Auth::id(),
+        403
+    );
+
+    if (!Storage::disk('public')->exists($attachment->file_path)) {
+        abort(404);
+    }
+
+    return Storage::disk('public')->download(
+        $attachment->file_path,
+        $attachment->original_name
+    );
+}
    public function updateMessage(
     Request $request,
     TicketMessage $message

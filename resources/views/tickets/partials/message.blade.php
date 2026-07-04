@@ -29,7 +29,28 @@ use Illuminate\Support\Str;
     </div>
 
 @endif
+@if($message->attachments->isNotEmpty())
 
+    <div class="mt-3 space-y-2">
+
+        @foreach($message->attachments as $attachment)
+
+            <div class="border rounded px-3 py-2">
+
+                <a
+    href="{{ route('user.attachments.download', $attachment) }}"
+    class="text-blue-600 hover:underline"
+>
+    📎 {{ $attachment->original_name }}
+</a>
+
+            </div>
+
+        @endforeach
+
+    </div>
+
+@endif
     <div class="flex justify-between">
 
         <strong>

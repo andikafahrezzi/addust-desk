@@ -3,6 +3,7 @@
 <form
     method="POST"
     action="{{ route('user.tickets.messages.store', $ticket) }}"
+    enctype="multipart/form-data"
 >
 
     @csrf
@@ -55,7 +56,30 @@
             {{ $message }}
         </p>
     @enderror
+<div class="mt-3">
 
+    <label class="block text-sm font-medium mb-1">
+        Attachment
+    </label>
+
+    <input
+        type="file"
+        name="attachments[]"
+        multiple
+        class="w-full border rounded p-2"
+    >
+
+    <small class="text-gray-500">
+        JPG, PNG, PDF, DOC, DOCX, XLS, XLSX, TXT, ZIP (max 10 MB/file)
+    </small>
+
+    @error('attachments.*')
+        <p class="text-red-500 text-sm mt-1">
+            {{ $message }}
+        </p>
+    @enderror
+
+</div>
     <div class="mt-3">
         <button
             class="bg-blue-600 text-white px-4 py-2 rounded"

@@ -98,6 +98,10 @@ Route::middleware(['auth', 'role:ADMIN'])
                 '/tickets/messages/{message}',
                 [TicketController::class, 'deleteMessage']
             )->name('tickets.messages.delete');
+            Route::get(
+                '/attachments/{attachment}/download',
+                [TicketController::class, 'downloadAttachment']
+            )->name('attachments.download');
         });
         
 require __DIR__.'/auth.php';
