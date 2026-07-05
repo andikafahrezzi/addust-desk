@@ -24,10 +24,20 @@ Route::get('/admin-test', function () {
 })
 ->middleware(['auth', 'role:ADMIN']);
 
-Route::get('/agent-test', function () {
-    return 'Agent Area';
-})
-->middleware(['auth', 'role:AGENT']);
+Route::middleware([
+    'auth',
+    'role:AGENT'
+])
+->prefix('agent')
+->name('agent.')
+->group(function () {
+
+    Route::get(
+        '/tickets',
+        [\App\Http\Controllers\Agent\TicketController::class, 'index']
+    )->name('tickets.index');
+
+});
 Route::middleware(['auth'])
     ->get('/dashboard', [DashboardController::class, 'redirect'])
     ->name('dashboard');

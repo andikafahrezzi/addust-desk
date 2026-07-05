@@ -224,6 +224,10 @@ if ($request->hasFile('attachments')) {
         abort(404);
     }
 
+/**
+ * @var FilesystemManager $storage
+ */
+$storage = Storage::disk('public');
     return Storage::disk('public')->download(
         $attachment->file_path,
         $attachment->original_name
