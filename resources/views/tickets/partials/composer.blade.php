@@ -1,8 +1,11 @@
-@if(!in_array($ticket->status, ['RESOLVED', 'CLOSED']))
+@if(
+    $canReply &&
+    !in_array($ticket->status, ['RESOLVED', 'CLOSED'])
+)
 
 <form
     method="POST"
-    action="{{ route('user.tickets.messages.store', $ticket) }}"
+    action="{{ $messageStoreRoute }}"
     enctype="multipart/form-data"
 >
 

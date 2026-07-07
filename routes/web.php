@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\User\TicketController;
+use App\Http\Controllers\Agent\TicketController as AgentTicketController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,8 +35,33 @@ Route::middleware([
 
     Route::get(
         '/tickets',
-        [\App\Http\Controllers\Agent\TicketController::class, 'index']
+        [AgentTicketController::class, 'index']
     )->name('tickets.index');
+        Route::patch(
+        '/tickets/{ticket}/claim',
+        [AgentTicketController::class, 'claim']
+    )->name('tickets.claim');
+    Route::get(
+        '/tickets/{ticket}',
+        [AgentTicketController::class, 'show']
+    )->name('tickets.show');
+    Route::post(
+    '/tickets/{ticket}/messages',
+    [AgentTicketController::class, 'storeMessage']
+)->name('tickets.messages.store');
+Route::patch(
+    '/tickets/messages/{message}',
+    [AgentTicketController::class, 'updateMessage']
+)->name('tickets.messages.update');
+
+Route::delete(
+    '/tickets/messages/{message}',
+    [AgentTicketController::class, 'deleteMessage']
+)->name('tickets.messages.delete');
+Route::get(
+    '/attachments/{attachment}/download',
+    [AgentTicketController::class, 'downloadAttachment']
+)->name('attachments.download');
 
 });
 Route::middleware(['auth'])

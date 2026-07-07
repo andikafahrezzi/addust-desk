@@ -37,8 +37,8 @@ use Illuminate\Support\Str;
 
             <div class="border rounded px-3 py-2">
 
-                <a
-    href="{{ route('user.attachments.download', $attachment) }}"
+<a
+    href="{{ route($attachmentDownloadRouteName, $attachment) }}"
     class="text-blue-600 hover:underline"
 >
     📎 {{ $attachment->original_name }}
@@ -78,15 +78,16 @@ use Illuminate\Support\Str;
     {{ $message->message }}
 
 @endif
-</div>
 
+</div>
+@if(!$message->deleted_at)
 <div
     id="message-edit-{{ $message->id }}"
     class="hidden mt-2"
->
+    >
     <form
         method="POST"
-        action="{{ route('user.tickets.messages.update', $message) }}"
+        action="{{ route($messageUpdateRouteName, $message) }}"
     >
         @csrf
         @method('PATCH')
@@ -124,19 +125,26 @@ use Illuminate\Support\Str;
 
     </form>
 </div>
+@endif
+    @if(!$message->deleted_at)
 
-    <div class="mt-3">
-        <button
-            type="button"
-            class="reply-btn text-sm text-blue-600"
-            data-id="{{ $message->id }}"
-            data-author="{{ $message->sender->name }}"
-            data-message="{{ \Illuminate\Support\Str::limit($message->message, 80) }}"
-        >
-            Reply
-        </button>
-    </div>
+<div class="mt-3">
+
+    <button
+        type="button"
+        class="reply-btn text-sm text-blue-600"
+        data-id="{{ $message->id }}"
+        data-author="{{ $message->sender->name }}"
+        data-message="{{ \Illuminate\Support\Str::limit($message->message, 80) }}"
+    >
+        Reply
+    </button>
+
+</div>
+
+@endif
 @if(
+    !$message->deleted_at &&
     auth()->id() === $message->sender_id &&
     $ticket->status !== 'CLOSED'
 )
@@ -149,14 +157,14 @@ use Illuminate\Support\Str;
     </button>
 @endif
 @if(
-    auth()->id() === $message->sender_id &&
     !$message->deleted_at &&
+    auth()->id() === $message->sender_id &&
     $ticket->status !== 'CLOSED'
 )
 
 <form
     method="POST"
-    action="{{ route('user.tickets.messages.delete', $message) }}"
+    action="{{ route($messageDeleteRouteName, $message) }}"
     class="inline"
     onsubmit="return confirm('Delete this message?')"
 >

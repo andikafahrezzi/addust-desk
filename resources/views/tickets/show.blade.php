@@ -6,6 +6,13 @@
 
 @include('tickets.partials.conversation')
 
-@include('tickets.partials.composer')
+@include(
+    'tickets.partials.composer',
+    [
+        'ticket' => $ticket,
+        'messageStoreRoute' => $messageStoreRoute,
+        'canReply' => $canReply,
+    ]
+)
 
 @endsection

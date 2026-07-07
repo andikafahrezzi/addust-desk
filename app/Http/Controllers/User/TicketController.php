@@ -112,14 +112,32 @@ $messages = $ticket->messages()
     ])
     ->oldest()
     ->paginate(30);
+    $messageStoreRoute = route(
+    'user.tickets.messages.store',
+    $ticket
+);
+$messageUpdateRouteName =
+    'user.tickets.messages.update';
+
+$messageDeleteRouteName =
+    'user.tickets.messages.delete';
+$attachmentDownloadRouteName =
+    'user.attachments.download';
+
+$canReply = true;
 
     return view(
-        'tickets.show',
-        compact(
-            'ticket',
-            'messages'
-        )
-    );
+    'tickets.show',
+    compact(
+        'ticket',
+        'messages',
+        'messageStoreRoute',
+        'canReply',
+        'messageUpdateRouteName',
+        'messageDeleteRouteName',
+        'attachmentDownloadRouteName'
+    )
+);
 }
 public function storeMessage(Request $request, Ticket $ticket)
 {
