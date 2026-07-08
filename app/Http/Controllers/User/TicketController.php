@@ -9,9 +9,10 @@ use App\Models\Priority;
 use App\Http\Requests\StoreTicketRequest;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Models\TicketEvent;
+use App\Models\TicketAttachment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\TicketAttachment;
 use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
@@ -307,6 +308,80 @@ $message->update([
     return back()->with(
         'success',
         'Message deleted.'
+    );
+}
+public function reopen(Ticket $ticket)
+{
+    abort_if(
+        $ticket->created_by !== Auth::id(),
+        403
+    );
+
+    abort_if(
+        $ticket->status !== 'RESOLVED',
+        403
+    );
+
+    $ticket->update([
+
+        'status' => 'IN_PROGRESS',
+
+    ]);
+
+    TicketEvent::create([
+
+        'ticket_id' => $ticket->id,
+
+        'performed_by' => Auth::id(),
+
+        'event_type' => 'REOPENED',
+
+        'description' => Auth::user()->name .
+            ' reopened this ticket.',
+
+    ]);
+
+    return back()->with(
+        'success',
+        'Ticket has been reopened.'
+    );
+}
+public function close(Ticket $ticket)
+{
+    abort_if(
+        $ticket->created_by !== Auth::id(),
+        403
+    );
+
+    abort_if(
+        $ticket->status !== 'RESOLVED',
+        403
+    );
+
+    $ticket->update([
+
+        'status' => 'CLOSED',
+
+        'closed_at' => now(),
+
+    ]);
+
+    TicketEvent::create([
+
+        'ticket_id' => $ticket->id,
+
+        'performed_by' => Auth::id(),
+
+        'event_type' => 'CLOSED',
+
+        'description' => Auth::user()->name .
+            ' closed this ticket.',
+
+    ]);
+
+    return back()->with(
+        'success',
+        'Ticket has been closed.'
     );
 }
 }

@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use App\Models\TicketMessage;
 use App\Models\TicketAttachment;
+use App\Models\TicketEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -341,6 +342,51 @@ public function downloadAttachment(
     return Storage::disk('public')->download(
         $attachment->file_path,
         $attachment->original_name
+    );
+}
+public function resolve(Ticket $ticket)
+{
+    abort_if(
+        $ticket->current_department_id !== Auth::user()->department_id,
+        403
+    );
+
+    abort_if(
+        $ticket->current_handler_id !== Auth::id(),
+        403
+    );
+
+    abort_if(
+        $ticket->status !== 'IN_PROGRESS',
+        403
+    );
+
+    $ticket->update([
+
+        'status' => 'RESOLVED',
+
+        'resolved_by' => Auth::id(),
+
+        'resolved_at' => now(),
+
+    ]);
+
+    TicketEvent::create([
+
+        'ticket_id' => $ticket->id,
+
+        'performed_by' => Auth::id(),
+
+        'event_type' => 'RESOLVED',
+
+        'description' => 'Ticket resolved by '
+            . Auth::user()->name . '.',
+
+    ]);
+
+    return back()->with(
+        'success',
+        'Ticket has been resolved.'
     );
 }
 }

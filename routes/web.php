@@ -62,6 +62,10 @@ Route::get(
     '/attachments/{attachment}/download',
     [AgentTicketController::class, 'downloadAttachment']
 )->name('attachments.download');
+Route::patch(
+    '/tickets/{ticket}/resolve',
+    [AgentTicketController::class, 'resolve']
+)->name('tickets.resolve');
 
 });
 Route::middleware(['auth'])
@@ -138,6 +142,14 @@ Route::middleware(['auth', 'role:ADMIN'])
                 '/attachments/{attachment}/download',
                 [TicketController::class, 'downloadAttachment']
             )->name('attachments.download');
+            Route::patch(
+                '/tickets/{ticket}/reopen',
+                [TicketController::class, 'reopen']
+            )->name('tickets.reopen');
+            Route::patch(
+                '/tickets/{ticket}/close',
+                [TicketController::class, 'close']
+            )->name('tickets.close');
         });
         
 require __DIR__.'/auth.php';
