@@ -19,17 +19,39 @@ class TicketController extends Controller
 public function index(): View
 {
     $tickets = Ticket::query()
+
         ->with([
             'category',
             'priority',
             'creator',
             'currentHandler',
         ])
+
         ->where(
             'current_department_id',
             Auth::user()->department_id
         )
+
+        ->where(function ($query) {
+
+            $query
+
+                ->where(function ($q) {
+
+                    $q->where('status', 'OPEN')
+                      ->whereNull('current_handler_id');
+
+                })
+
+                ->orWhere(
+                    'current_handler_id',
+                    Auth::id()
+                );
+
+        })
+
         ->latest()
+
         ->paginate(20);
 
     return view(
@@ -62,6 +84,18 @@ public function claim(Ticket $ticket)
             'status' => 'IN_PROGRESS',
 
         ]);
+        TicketEvent::create([
+
+            'ticket_id' => $ticket->id,
+
+            'performed_by' => Auth::id(),
+
+            'event_type' => 'ACCEPTED',
+
+            'description' => Auth::user()->name .
+                ' claimed this ticket.',
+
+        ]);
 
     });
 
@@ -83,6 +117,7 @@ public function show(Ticket $ticket): View
         'currentDepartment',
         'currentHandler',
         'creator',
+        'events.performedBy',
     ]);
 
     $messages = $ticket->messages()
@@ -119,8 +154,8 @@ $attachmentDownloadRouteName =
         'messageUpdateRouteName',
         'messageDeleteRouteName',
         'attachmentDownloadRouteName'
-    )
-);
+         )
+    );
 }
 public function storeMessage(
     Request $request,

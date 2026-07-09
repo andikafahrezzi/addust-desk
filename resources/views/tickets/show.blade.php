@@ -4,6 +4,8 @@
 
 @include('tickets.partials.header')
 
+@include('tickets.partials.timeline')
+
 @include('tickets.partials.conversation')
 
 @include(

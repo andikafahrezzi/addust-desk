@@ -81,6 +81,18 @@ public function create()
             'message' => $request->description,
 
         ]);
+        TicketEvent::create([
+
+            'ticket_id' => $ticket->id,
+
+            'performed_by' => Auth::id(),
+
+            'event_type' => 'CREATED',
+
+            'description' => Auth::user()->name .
+                ' created this ticket.',
+
+        ]);
 
     });
 
@@ -103,6 +115,7 @@ public function show(Ticket $ticket)
         'priority',
         'currentDepartment',
         'currentHandler',
+        'events.performedBy',
     ]);
 
 $messages = $ticket->messages()
