@@ -6,44 +6,84 @@
 
 <div class="border rounded">
 
-@forelse(
-    $ticket->events->sortBy('created_at')
-    as $event
-)
+@forelse($ticket->events->sortBy('created_at') as $event)
 
-    <div class="border-b last:border-b-0 p-4">
+<div class="border-b last:border-b-0 p-4">
 
-        <div class="flex justify-between items-center">
+    <div class="flex justify-between items-start">
 
-            <div>
+        <div>
 
-                <div class="font-medium">
+            <span
+                class="inline-block px-2 py-1 rounded text-xs font-semibold
+                @switch($event->event_type)
+                    @case('CREATED')
+                        bg-green-100 text-green-700
+                        @break
 
-                    {{ $event->description }}
+                    @case('ACCEPTED')
+                        bg-blue-100 text-blue-700
+                        @break
 
-                </div>
+                    @case('RESOLVED')
+                        bg-emerald-100 text-emerald-700
+                        @break
 
-                @if($event->performedBy)
+                    @case('REOPENED')
+                        bg-yellow-100 text-yellow-700
+                        @break
 
-                    <div class="text-sm text-gray-500">
+                    @case('ESCALATED')
+                        bg-orange-100 text-orange-700
+                        @break
 
-                        {{ $event->performedBy->name }}
+                    @case('REASSIGNED')
+                        bg-indigo-100 text-indigo-700
+                        @break
 
-                    </div>
+                    @case('CLOSED')
+                        bg-red-100 text-red-700
+                        @break
+                @endswitch
+            ">
 
-                @endif
+                {{ $event->event_type }}
+
+            </span>
+
+            <div class="mt-3">
+
+                {{ $event->description }}
 
             </div>
 
-            <small class="text-gray-500">
+            @if($event->performedBy)
 
-                {{ $event->created_at->format('d M Y H:i') }}
+                <div class="text-sm text-gray-500 mt-2">
 
-            </small>
+                    By
+
+                    <strong>
+
+                        {{ $event->performedBy->name }}
+
+                    </strong>
+
+                </div>
+
+            @endif
 
         </div>
 
+        <small class="text-gray-500 whitespace-nowrap">
+
+            {{ $event->created_at->format('d M Y H:i') }}
+
+        </small>
+
     </div>
+
+</div>
 
 @empty
 

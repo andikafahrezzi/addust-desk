@@ -482,9 +482,16 @@ public function escalate(
 
     ]);
 
+    $oldDepartment = $ticket->currentDepartment;
+    $newDepartment = Department::findOrFail(
+        $validated['department_id']
+    );
+
     DB::transaction(function () use (
         $ticket,
-        $validated
+        $validated,
+        $oldDepartment,
+        $newDepartment
     ) {
 
         $ticket->update([
@@ -505,8 +512,15 @@ public function escalate(
 
             'event_type' => 'ESCALATED',
 
-            'description' => Auth::user()->name .
-                ' escalated this ticket.',
+            'description' =>
+
+            'Escalated from '
+
+            . $oldDepartment->name
+
+            . ' to '
+
+            . $newDepartment->name,
 
         ]);
 
@@ -546,21 +560,40 @@ public function reassign(
 
     ]);
 
-    $agent = User::where(
-            'id',
-            $validated['agent_id']
-        )
-        ->where(
-            'department_id',
-            Auth::user()->department_id
-        )
-        ->first();
+$agent = User::query()
+
+    ->where(
+        'id',
+        $validated['agent_id']
+    )
+
+    ->where(
+        'department_id',
+        Auth::user()->department_id
+    )
+
+    ->where(
+        'role_id',
+        Auth::user()->role_id
+    )
+
+    ->where(
+        'id',
+        '!=',
+        Auth::id()
+    )
+
+    ->first();
 
     abort_if(!$agent, 403);
+    $oldAgent = $ticket->currentHandler;
+    $newAgent = $agent;
 
     DB::transaction(function () use (
         $ticket,
-        $agent
+        $agent,
+        $oldAgent,
+        $newAgent
     ) {
 
         $ticket->update([
@@ -577,9 +610,15 @@ public function reassign(
 
             'event_type' => 'REASSIGNED',
 
-            'description' => Auth::user()->name .
-                ' reassigned this ticket to ' .
-                $agent->name . '.',
+            'description' =>
+
+            'Reassigned from '
+
+            . $oldAgent->name
+
+            . ' to '
+
+            . $newAgent->name,
 
         ]);
 
