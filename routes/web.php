@@ -66,6 +66,10 @@ Route::patch(
     '/tickets/{ticket}/resolve',
     [AgentTicketController::class, 'resolve']
 )->name('tickets.resolve');
+Route::patch(
+    '/tickets/{ticket}/escalate',
+    [AgentTicketController::class, 'escalate']
+)->name('tickets.escalate');
 
 });
 Route::middleware(['auth'])

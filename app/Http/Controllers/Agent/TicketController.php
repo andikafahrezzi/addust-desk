@@ -13,6 +13,7 @@ use App\Models\TicketEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Department;
 
 class TicketController extends Controller
 {
@@ -143,6 +144,10 @@ $messageDeleteRouteName =
     'agent.tickets.messages.delete';
 $attachmentDownloadRouteName =
     'agent.attachments.download';
+$departments = Department::query()
+    ->where('id', '!=', Auth::user()->department_id)
+    ->orderBy('name')
+    ->get();
 
     return view(
     'tickets.show',
@@ -153,7 +158,8 @@ $attachmentDownloadRouteName =
         'canReply',
         'messageUpdateRouteName',
         'messageDeleteRouteName',
-        'attachmentDownloadRouteName'
+        'attachmentDownloadRouteName',
+        'departments'
          )
     );
 }
@@ -423,5 +429,70 @@ public function resolve(Ticket $ticket)
         'success',
         'Ticket has been resolved.'
     );
+}
+public function escalate(
+    Request $request,
+    Ticket $ticket
+)
+{
+    abort_if(
+        $ticket->current_handler_id !== Auth::id(),
+        403
+    );
+
+    abort_if(
+        in_array(
+            $ticket->status,
+            ['RESOLVED', 'CLOSED']
+        ),
+        403
+    );
+
+    $validated = $request->validate([
+
+        'department_id' => [
+            'required',
+            'exists:departments,id',
+            'different:' . Auth::user()->department_id,
+        ],
+
+    ]);
+
+    DB::transaction(function () use (
+        $ticket,
+        $validated
+    ) {
+
+        $ticket->update([
+
+            'current_department_id' => $validated['department_id'],
+
+            'current_handler_id' => null,
+
+            'status' => 'OPEN',
+
+        ]);
+
+        TicketEvent::create([
+
+            'ticket_id' => $ticket->id,
+
+            'performed_by' => Auth::id(),
+
+            'event_type' => 'ESCALATED',
+
+            'description' => Auth::user()->name .
+                ' escalated this ticket.',
+
+        ]);
+
+    });
+
+    return redirect()
+        ->route('agent.tickets.index')
+        ->with(
+            'success',
+            'Ticket has been escalated.'
+        );
 }
 }

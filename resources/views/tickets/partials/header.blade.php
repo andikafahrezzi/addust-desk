@@ -46,6 +46,88 @@
 @endif
 
 @if(
+    auth()->user()->role->name === 'AGENT' &&
+    auth()->id() === $ticket->current_handler_id &&
+    !in_array($ticket->status, ['RESOLVED', 'CLOSED'])
+)
+
+<div class="mt-4 border rounded p-4">
+
+    <h3 class="font-semibold mb-3">
+
+        Escalate Ticket
+
+    </h3>
+
+    <form
+        method="POST"
+        action="{{ route('agent.tickets.escalate', $ticket) }}"
+    >
+
+        @csrf
+        @method('PATCH')
+
+        <div>
+
+            <label class="block mb-1">
+
+                Department
+
+            </label>
+
+            <select
+                name="department_id"
+                class="w-full border rounded p-2"
+                required
+            >
+
+                <option value="">
+
+                    -- Select Department --
+
+                </option>
+
+                @foreach($departments as $department)
+
+                    <option
+                        value="{{ $department->id }}"
+                    >
+                        {{ $department->name }}
+                    </option>
+
+                @endforeach
+
+            </select>
+
+            @error('department_id')
+
+                <p class="text-red-500 text-sm mt-1">
+
+                    {{ $message }}
+
+                </p>
+
+            @enderror
+
+        </div>
+
+        <button
+            type="submit"
+            class="mt-3 bg-orange-600 text-white px-4 py-2 rounded"
+            onclick="return confirm('Escalate this ticket?')"
+        >
+
+            Escalate Ticket
+
+        </button>
+
+    </form>
+
+</div>
+
+@endif
+
+@if(
     auth()->user()->role->name === 'USER' &&
     $ticket->status === 'RESOLVED'
 )
