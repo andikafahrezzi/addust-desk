@@ -126,6 +126,87 @@
 </div>
 
 @endif
+@if(
+    auth()->user()->role->name === 'AGENT' &&
+    auth()->id() === $ticket->current_handler_id &&
+    !in_array($ticket->status, ['RESOLVED', 'CLOSED'])
+)
+
+<div class="mt-4 border rounded p-4">
+
+    <h3 class="font-semibold mb-3">
+
+        Reassign Ticket
+
+    </h3>
+
+    <form
+        method="POST"
+        action="{{ route('agent.tickets.reassign', $ticket) }}"
+    >
+
+        @csrf
+        @method('PATCH')
+
+        <div>
+
+            <label class="block mb-1">
+
+                Assign To
+
+            </label>
+
+            <select
+                name="agent_id"
+                class="w-full border rounded p-2"
+                required
+            >
+
+                <option value="">
+
+                    -- Select Agent --
+
+                </option>
+
+                @foreach($agents as $agent)
+
+                    <option value="{{ $agent->id }}">
+
+                        {{ $agent->name }}
+
+                    </option>
+
+                @endforeach
+
+            </select>
+
+            @error('agent_id')
+
+                <p class="text-red-500 text-sm mt-1">
+
+                    {{ $message }}
+
+                </p>
+
+            @enderror
+
+        </div>
+
+        <button
+            type="submit"
+            class="mt-3 bg-indigo-600 text-white px-4 py-2 rounded"
+            onclick="return confirm('Reassign this ticket?')"
+        >
+
+            Reassign Ticket
+
+        </button>
+
+    </form>
+
+</div>
+
+@endif
 
 @if(
     auth()->user()->role->name === 'USER' &&

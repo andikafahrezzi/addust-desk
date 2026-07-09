@@ -70,6 +70,10 @@ Route::patch(
     '/tickets/{ticket}/escalate',
     [AgentTicketController::class, 'escalate']
 )->name('tickets.escalate');
+Route::patch(
+    '/tickets/{ticket}/reassign',
+    [AgentTicketController::class, 'reassign']
+)->name('tickets.reassign');
 
 });
 Route::middleware(['auth'])

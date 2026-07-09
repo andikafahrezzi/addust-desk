@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Department;
+use App\Models\User;
 
 class TicketController extends Controller
 {
@@ -149,6 +150,28 @@ $departments = Department::query()
     ->orderBy('name')
     ->get();
 
+$agents = User::query()
+
+    ->where(
+        'department_id',
+        Auth::user()->department_id
+    )
+
+    ->where(
+        'role_id',
+        Auth::user()->role_id
+    )
+
+    ->where(
+        'id',
+        '!=',
+        Auth::id()
+    )
+
+    ->orderBy('name')
+
+    ->get();
+
     return view(
     'tickets.show',
     compact(
@@ -159,7 +182,8 @@ $departments = Department::query()
         'messageUpdateRouteName',
         'messageDeleteRouteName',
         'attachmentDownloadRouteName',
-        'departments'
+        'departments',
+        'agents'
          )
     );
 }
@@ -493,6 +517,79 @@ public function escalate(
         ->with(
             'success',
             'Ticket has been escalated.'
+        );
+}
+public function reassign(
+    Request $request,
+    Ticket $ticket
+)
+{
+    abort_if(
+        $ticket->current_handler_id !== Auth::id(),
+        403
+    );
+
+    abort_if(
+        in_array(
+            $ticket->status,
+            ['RESOLVED', 'CLOSED']
+        ),
+        403
+    );
+
+    $validated = $request->validate([
+
+        'agent_id' => [
+            'required',
+            'exists:users,id',
+        ],
+
+    ]);
+
+    $agent = User::where(
+            'id',
+            $validated['agent_id']
+        )
+        ->where(
+            'department_id',
+            Auth::user()->department_id
+        )
+        ->first();
+
+    abort_if(!$agent, 403);
+
+    DB::transaction(function () use (
+        $ticket,
+        $agent
+    ) {
+
+        $ticket->update([
+
+            'current_handler_id' => $agent->id,
+
+        ]);
+
+        TicketEvent::create([
+
+            'ticket_id' => $ticket->id,
+
+            'performed_by' => Auth::id(),
+
+            'event_type' => 'REASSIGNED',
+
+            'description' => Auth::user()->name .
+                ' reassigned this ticket to ' .
+                $agent->name . '.',
+
+        ]);
+
+    });
+
+    return redirect()
+        ->route('agent.tickets.index')
+        ->with(
+            'success',
+            'Ticket reassigned successfully.'
         );
 }
 }
