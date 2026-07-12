@@ -30,4 +30,11 @@ public function assignments()
         TicketAssignment::class
     );
 }
+public function tickets()
+{
+    return $this->hasMany(
+        Ticket::class,
+        'current_department_id'
+    );
+}
 }

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\User\TicketController;
 use App\Http\Controllers\Agent\TicketController as AgentTicketController;
+use App\Http\Controllers\Admin\Master\DepartmentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -98,13 +99,22 @@ Route::middleware(['auth', 'role:AGENT'])
         )->name('agent.dashboard');
 
     });
-Route::middleware(['auth', 'role:ADMIN'])
+
+
+    Route::middleware(['auth', 'role:ADMIN'])
+    ->prefix('admin')
+    ->name('admin.')
     ->group(function () {
 
         Route::view(
-            '/admin/dashboard',
+            '/dashboard',
             'admin.dashboard'
-        )->name('admin.dashboard');
+        )->name('dashboard');
+
+        Route::resource(
+            'departments',
+            DepartmentController::class
+        )->except(['show']);
 
     });
 
