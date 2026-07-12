@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\User\TicketController;
 use App\Http\Controllers\Agent\TicketController as AgentTicketController;
 use App\Http\Controllers\Admin\Master\DepartmentController;
+use App\Http\Controllers\Admin\Master\CategoryController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,10 +22,35 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// route admin
+
 Route::get('/admin-test', function () {
     return 'Admin Area';
 })
 ->middleware(['auth', 'role:ADMIN']);
+
+    Route::middleware(['auth', 'role:ADMIN'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        Route::view(
+            '/dashboard',
+            'admin.dashboard'
+        )->name('dashboard');
+
+        Route::resource(
+            'departments',
+            DepartmentController::class
+        )->except(['show']);
+
+        Route::resource(
+            'categories',
+            CategoryController::class
+        )->except(['show']);
+    });
+
+//route agent
 
 Route::middleware([
     'auth',
@@ -100,23 +126,7 @@ Route::middleware(['auth', 'role:AGENT'])
 
     });
 
-
-    Route::middleware(['auth', 'role:ADMIN'])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-
-        Route::view(
-            '/dashboard',
-            'admin.dashboard'
-        )->name('dashboard');
-
-        Route::resource(
-            'departments',
-            DepartmentController::class
-        )->except(['show']);
-
-    });
+// route user
 
     Route::middleware([
     'auth',

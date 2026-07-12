@@ -17,4 +17,8 @@ class Category extends Model
     {
         return $this->hasMany(Ticket::class);
     }
+        public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
 }
