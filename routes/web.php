@@ -8,6 +8,7 @@ use App\Http\Controllers\Agent\TicketController as AgentTicketController;
 use App\Http\Controllers\Admin\Master\DepartmentController;
 use App\Http\Controllers\Admin\Master\CategoryController;
 use App\Http\Controllers\Admin\Master\PriorityController;
+use App\Http\Controllers\Admin\Master\UserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -53,6 +54,22 @@ Route::get('/admin-test', function () {
             'priorities',
             PriorityController::class
         )->except(['show']);
+        Route::resource(
+            'users',
+            UserController::class
+        )->except([
+            'show',
+            'destroy',
+        ]);
+        Route::patch(
+            'users/{user}/toggle-status',
+            [UserController::class, 'toggleStatus']
+        )->name('users.toggle-status');
+
+        Route::patch(
+            'users/{user}/reset-password',
+            [UserController::class, 'resetPassword']
+        )->name('users.reset-password');
     });
 
 //route agent
