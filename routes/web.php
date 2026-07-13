@@ -7,6 +7,7 @@ use App\Http\Controllers\User\TicketController;
 use App\Http\Controllers\Agent\TicketController as AgentTicketController;
 use App\Http\Controllers\Admin\Master\DepartmentController;
 use App\Http\Controllers\Admin\Master\CategoryController;
+use App\Http\Controllers\Admin\Master\PriorityController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -47,6 +48,10 @@ Route::get('/admin-test', function () {
         Route::resource(
             'categories',
             CategoryController::class
+        )->except(['show']);
+        Route::resource(
+            'priorities',
+            PriorityController::class
         )->except(['show']);
     });
 
