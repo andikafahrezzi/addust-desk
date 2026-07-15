@@ -13,14 +13,20 @@ class DepartmentSeeder extends Seeder
             [
                 'name' => 'HELPDESK',
                 'description' => 'First Level Support',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'name' => 'NOC',
                 'description' => 'Network Operation Center',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'name' => 'IT SUPPORT',
                 'description' => 'General IT Support',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ]);
     }

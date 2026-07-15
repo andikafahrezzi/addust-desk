@@ -20,6 +20,10 @@ class Ticket extends Model
         'resolved_by',
         'resolved_at',
         'closed_at',
+        'response_sla_minutes',
+        'resolution_sla_minutes',
+        'response_due_at',
+        'resolution_due_at',
     ];
 
 
@@ -84,6 +88,44 @@ class Ticket extends Model
     {
         return $this->hasMany(TicketAssignment::class);
     }
+    public function firstAcceptedEvent()
+{
+    return $this->events()
+        ->where('event_type', 'ACCEPTED')
+        ->oldest()
+        ->first();
+}
+public function responseSlaStatus()
+{
+    $acceptedEvent = $this->firstAcceptedEvent();
+
+    if (! $acceptedEvent) {
+        return 'PENDING';
+    }
+
+    return $acceptedEvent->created_at <= $this->response_due_at
+        ? 'ON_TIME'
+        : 'BREACHED';
+}
+public function isResponseSlaMet(): ?bool
+{
+    $acceptedEvent = $this->firstAcceptedEvent();
+
+    if (! $acceptedEvent) {
+        return null;
+    }
+
+    return $acceptedEvent->created_at <= $this->response_due_at;
+}
+
+public function isResolutionSlaMet(): ?bool
+{
+    if (! $this->resolved_at) {
+        return null;
+    }
+
+    return $this->resolved_at <= $this->resolution_due_at;
+}
 
 
     // File yang menempel pada tiket

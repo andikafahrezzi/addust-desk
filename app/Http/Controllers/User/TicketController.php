@@ -42,9 +42,27 @@ public function create()
     ));
 }
 
-   public function store(StoreTicketRequest $request)
+public function store(StoreTicketRequest $request)
 {
     DB::transaction(function () use ($request) {
+
+        $priority = Priority::findOrFail(
+            $request->priority_id
+        );
+
+        $now = now();
+
+        $responseDueAt = $now
+            ->copy()
+            ->addMinutes(
+                $priority->sla_response_minutes
+            );
+
+        $resolutionDueAt = $now
+            ->copy()
+            ->addMinutes(
+                $priority->sla_resolution_minutes
+            );
 
         $ticket = Ticket::create([
 
@@ -53,6 +71,18 @@ public function create()
             'category_id' => $request->category_id,
 
             'priority_id' => $request->priority_id,
+
+            'response_sla_minutes'
+                => $priority->sla_response_minutes,
+
+            'resolution_sla_minutes'
+                => $priority->sla_resolution_minutes,
+
+            'response_due_at'
+                => $responseDueAt,
+
+            'resolution_due_at'
+                => $resolutionDueAt,
 
             'status' => 'OPEN',
 
@@ -81,6 +111,7 @@ public function create()
             'message' => $request->description,
 
         ]);
+
         TicketEvent::create([
 
             'ticket_id' => $ticket->id,

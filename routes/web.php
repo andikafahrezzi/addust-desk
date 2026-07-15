@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\Master\DepartmentController;
 use App\Http\Controllers\Admin\Master\CategoryController;
 use App\Http\Controllers\Admin\Master\PriorityController;
 use App\Http\Controllers\Admin\Master\UserController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -36,10 +37,10 @@ Route::get('/admin-test', function () {
     ->name('admin.')
     ->group(function () {
 
-        Route::view(
-            '/dashboard',
-            'admin.dashboard'
-        )->name('dashboard');
+Route::get(
+    '/dashboard',
+    [AdminDashboardController::class, 'index']
+)->name('dashboard');
 
         Route::resource(
             'departments',

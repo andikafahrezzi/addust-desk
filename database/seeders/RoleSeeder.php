@@ -13,14 +13,20 @@ class RoleSeeder extends Seeder
             [
                 'name' => 'USER',
                 'description' => 'User yang membuat tiket',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'name' => 'AGENT',
                 'description' => 'Agent yang menangani tiket',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'name' => 'ADMIN',
                 'description' => 'Administrator sistem',
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ]);
     }
