@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -10,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\TicketMessage;
 use App\Models\TicketAttachment;
 use App\Models\TicketEvent;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Department;
@@ -51,6 +51,7 @@ public function index(): View
                 );
 
         })
+        ->where('status', '!=', 'CLOSED')
 
         ->latest()
 
@@ -58,7 +59,30 @@ public function index(): View
 
     return view(
         'agent.tickets.index',
-        compact('tickets')
+        [
+            'tickets' => $tickets,
+            'isClosed' => false,
+        ]
+    );
+}
+public function closed()
+{
+    $tickets = Ticket::with([
+        'creator',
+        'category',
+        'priority',
+        'currentDepartment',
+    ])
+    ->where('status', 'CLOSED')
+    ->latest()
+    ->paginate(10);
+
+    return view(
+        'agent.tickets.index',
+        [
+            'tickets' => $tickets,
+            'isClosed' => true,
+        ]
     );
 }
 public function claim(Ticket $ticket)

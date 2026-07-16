@@ -75,6 +75,16 @@ Route::get(
 
 //route agent
 
+Route::middleware(['auth', 'role:AGENT'])
+    ->group(function () {
+
+        Route::view(
+            '/agent/dashboard',
+            'agent.dashboard'
+        )->name('agent.dashboard');
+
+    });
+
 Route::middleware([
     'auth',
     'role:AGENT'
@@ -87,7 +97,15 @@ Route::middleware([
         '/tickets',
         [AgentTicketController::class, 'index']
     )->name('tickets.index');
-        Route::patch(
+        Route::get(
+        '/tickets/closed',
+        [AgentTicketController::class, 'closed']
+    )->name('tickets.closed');
+    Route::get(
+        '/tickets/closed',
+        [AgentTicketController::class, 'closed']
+    )->name('tickets.closed');
+    Route::patch(
         '/tickets/{ticket}/claim',
         [AgentTicketController::class, 'claim']
     )->name('tickets.claim');
@@ -96,69 +114,60 @@ Route::middleware([
         [AgentTicketController::class, 'show']
     )->name('tickets.show');
     Route::post(
-    '/tickets/{ticket}/messages',
-    [AgentTicketController::class, 'storeMessage']
-)->name('tickets.messages.store');
-Route::patch(
-    '/tickets/messages/{message}',
-    [AgentTicketController::class, 'updateMessage']
-)->name('tickets.messages.update');
-
-Route::delete(
-    '/tickets/messages/{message}',
-    [AgentTicketController::class, 'deleteMessage']
-)->name('tickets.messages.delete');
-Route::get(
-    '/attachments/{attachment}/download',
-    [AgentTicketController::class, 'downloadAttachment']
-)->name('attachments.download');
-Route::patch(
-    '/tickets/{ticket}/resolve',
-    [AgentTicketController::class, 'resolve']
-)->name('tickets.resolve');
-Route::patch(
-    '/tickets/{ticket}/escalate',
-    [AgentTicketController::class, 'escalate']
-)->name('tickets.escalate');
-Route::patch(
-    '/tickets/{ticket}/reassign',
-    [AgentTicketController::class, 'reassign']
-)->name('tickets.reassign');
+        '/tickets/{ticket}/messages',
+        [AgentTicketController::class, 'storeMessage']
+    )->name('tickets.messages.store');
+    Route::patch(
+        '/tickets/messages/{message}',
+        [AgentTicketController::class, 'updateMessage']
+    )->name('tickets.messages.update');
+    Route::delete(
+        '/tickets/messages/{message}',
+        [AgentTicketController::class, 'deleteMessage']
+    )->name('tickets.messages.delete');
+    Route::get(
+        '/attachments/{attachment}/download',
+        [AgentTicketController::class, 'downloadAttachment']
+    )->name('attachments.download');
+    Route::patch(
+        '/tickets/{ticket}/resolve',
+        [AgentTicketController::class, 'resolve']
+    )->name('tickets.resolve');
+    Route::patch(
+        '/tickets/{ticket}/escalate',
+        [AgentTicketController::class, 'escalate']
+    )->name('tickets.escalate');
+    Route::patch(
+        '/tickets/{ticket}/reassign',
+        [AgentTicketController::class, 'reassign']
+    )->name('tickets.reassign');
 
 });
-Route::middleware(['auth'])
-    ->get('/dashboard', [DashboardController::class, 'redirect'])
-    ->name('dashboard');
-    
-    Route::middleware(['auth', 'role:USER'])
-    ->group(function () {
 
-        Route::view(
-            '/user/dashboard',
-            'user.dashboard'
-        )->name('user.dashboard');
-
-    });
-Route::middleware(['auth', 'role:AGENT'])
-    ->group(function () {
-
-        Route::view(
-            '/agent/dashboard',
-            'agent.dashboard'
-        )->name('agent.dashboard');
-
-    });
 
 // route user
 
-    Route::middleware([
-    'auth',
-    'role:USER'
-])->prefix('user')
-->name('user.')
-->group(function () {
+    Route::middleware(['auth'])
+        ->get('/dashboard', [DashboardController::class, 'redirect'])
+        ->name('dashboard');
+        
+        Route::middleware(['auth', 'role:USER'])
+        ->group(function () {
 
-    
+            Route::view(
+                '/user/dashboard',
+                'user.dashboard'
+            )->name('user.dashboard');
+
+        });
+        
+    Route::middleware([
+        'auth',
+        'role:USER'
+    ])->prefix('user')
+    ->name('user.')
+    ->group(function () {
+
     Route::get(
         '/tickets/create',
         [TicketController::class, 'create']
