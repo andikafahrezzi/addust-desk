@@ -20,15 +20,42 @@ class TicketController extends Controller
 public function index()
 {
     $tickets = Ticket::with([
-            'category',
-            'priority',
-            'currentDepartment'
-        ])
-        ->where('created_by', Auth::id())
-        ->latest()
-        ->paginate(10);
+        'category',
+        'priority',
+        'currentDepartment'
+    ])
+    ->where('created_by', Auth::id())
+    ->where('status', '!=', 'CLOSED')
+    ->latest()
+    ->paginate(10);
 
-    return view('tickets.index', compact('tickets'));
+    return view(
+        'tickets.index',
+        [
+            'tickets' => $tickets,
+            'isClosed' => false,
+        ]
+    );
+}
+public function closed()
+{
+    $tickets = Ticket::with([
+        'category',
+        'priority',
+        'currentDepartment'
+    ])
+    ->where('created_by', Auth::id())
+    ->where('status', 'CLOSED')
+    ->latest()
+    ->paginate(10);
+
+    return view(
+        'tickets.index',
+        [
+            'tickets' => $tickets,
+            'isClosed' => true,
+        ]
+    );
 }
 public function create()
 {

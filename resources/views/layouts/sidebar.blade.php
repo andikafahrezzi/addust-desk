@@ -4,28 +4,33 @@
 
 <ul class="space-y-2">
 
-    {{-- USER --}}
-    @if($role === 'USER')
+@if($role === 'USER')
 
-        <li>
-            <a href="{{ route('user.dashboard') }}">
-                Dashboard
-            </a>
-        </li>
+    <li>
+        <a href="{{ route('user.dashboard') }}">
+            Dashboard
+        </a>
+    </li>
 
-        <li>
-            <a href="#">
-                Create Ticket
-            </a>
-        </li>
+    <li>
+        <a href="{{ route('user.tickets.create') }}">
+            Create Ticket
+        </a>
+    </li>
 
-        <li>
-            <a href="#">
-                My Tickets
-            </a>
-        </li>
+    <li>
+        <a href="{{ route('user.tickets.index') }}">
+            My Tickets
+        </a>
+    </li>
 
-    @endif
+    <li>
+        <a href="{{ route('user.tickets.closed') }}">
+            Closed Tickets
+        </a>
+    </li>
+
+@endif
 
 
     {{-- AGENT --}}

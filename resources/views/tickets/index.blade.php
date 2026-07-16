@@ -4,16 +4,20 @@
 
 <div class="flex justify-between items-center mb-6">
 
-    <h1 class="text-2xl font-bold">
-        My Tickets
-    </h1>
+<h1 class="text-2xl font-bold">
+    {{ $isClosed ? 'Closed Tickets' : 'My Tickets' }}
+</h1>
 
-    <a
-        href="{{ route('user.tickets.create') }}"
-        class="bg-blue-600 text-white px-4 py-2 rounded"
-    >
-        + Create Ticket
-    </a>
+@if (! $isClosed)
+
+<a
+    href="{{ route('user.tickets.create') }}"
+    class="..."
+>
+    Create Ticket
+</a>
+
+@endif
 
 </div>
 

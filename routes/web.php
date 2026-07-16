@@ -174,6 +174,10 @@ Route::middleware(['auth', 'role:AGENT'])
                 [TicketController::class, 'index']
             )->name('tickets.index');
             Route::get(
+                '/tickets/closed',
+                [TicketController::class, 'closed']
+            )->name('tickets.closed');
+            Route::get(
                 '/tickets/{ticket}',
                 [TicketController::class, 'show']
             )->name('tickets.show');
