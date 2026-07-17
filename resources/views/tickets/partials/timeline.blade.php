@@ -1,98 +1,66 @@
-<h2 class="text-xl font-semibold mt-8 mb-4">
+@php
+    $eventMap = [
+        'CREATED'    => ['icon' => 'plus',    'class' => 'bg-accent-tint text-accent'],
+        'ACCEPTED'   => ['icon' => 'check',   'class' => 'bg-accent-tint text-accent'],
+        'RESOLVED'   => ['icon' => 'check',   'class' => 'bg-status-resolved/10 text-status-resolved'],
+        'REOPENED'   => ['icon' => 'inbox',   'class' => 'bg-status-reopened/10 text-status-reopened'],
+        'ESCALATED'  => ['icon' => 'flag',    'class' => 'bg-status-progress/10 text-status-progress'],
+        'REASSIGNED' => ['icon' => 'users',   'class' => 'bg-accent-tint text-accent'],
+        'CLOSED'     => ['icon' => 'archive', 'class' => 'bg-slate-100 text-slate-500'],
+    ];
 
-    Timeline
+    $events = $ticket->events->sortBy('created_at')->values();
+@endphp
 
-</h2>
+<div class="bg-white border border-border rounded-xl p-6">
 
-<div class="border rounded">
+    <h2 class="text-sm font-semibold text-slate-900 mb-5">
+        Timeline
+    </h2>
 
-@forelse($ticket->events->sortBy('created_at') as $event)
+    @forelse($events as $event)
 
-<div class="border-b last:border-b-0 p-4">
+        @php($e = $eventMap[$event->event_type] ?? ['icon' => 'ticket', 'class' => 'bg-slate-100 text-slate-500'])
 
-    <div class="flex justify-between items-start">
+        <div class="relative pl-10 {{ !$loop->last ? 'pb-6' : '' }}">
 
-        <div>
+            @unless($loop->last)
+                <span class="absolute left-[15px] top-8 bottom-0 w-px bg-border"></span>
+            @endunless
 
-            <span
-                class="inline-block px-2 py-1 rounded text-xs font-semibold
-                @switch($event->event_type)
-                    @case('CREATED')
-                        bg-green-100 text-green-700
-                        @break
-
-                    @case('ACCEPTED')
-                        bg-blue-100 text-blue-700
-                        @break
-
-                    @case('RESOLVED')
-                        bg-emerald-100 text-emerald-700
-                        @break
-
-                    @case('REOPENED')
-                        bg-yellow-100 text-yellow-700
-                        @break
-
-                    @case('ESCALATED')
-                        bg-orange-100 text-orange-700
-                        @break
-
-                    @case('REASSIGNED')
-                        bg-indigo-100 text-indigo-700
-                        @break
-
-                    @case('CLOSED')
-                        bg-red-100 text-red-700
-                        @break
-                @endswitch
-            ">
-
-                {{ $event->event_type }}
-
+            <span class="absolute left-0 top-0 w-8 h-8 rounded-full flex items-center justify-center {{ $e['class'] }}">
+                <x-icon :name="$e['icon']" class="w-4 h-4" />
             </span>
 
-            <div class="mt-3">
-
-                {{ $event->description }}
-
+            <div class="flex items-start justify-between gap-3 flex-wrap">
+                <p class="text-sm font-medium text-slate-900">
+                    {{ ucwords(strtolower(str_replace('_', ' ', $event->event_type))) }}
+                </p>
+                <span class="text-xs text-slate-400 whitespace-nowrap">
+                    {{ $event->created_at->format('d M Y H:i') }}
+                </span>
             </div>
 
+            @if($event->description)
+                <p class="text-sm text-slate-600 mt-0.5">
+                    {{ $event->description }}
+                </p>
+            @endif
+
             @if($event->performedBy)
-
-                <div class="text-sm text-gray-500 mt-2">
-
-                    By
-
-                    <strong>
-
-                        {{ $event->performedBy->name }}
-
-                    </strong>
-
-                </div>
-
+                <p class="text-xs text-slate-400 mt-1">
+                    by <span class="text-slate-500 font-medium">{{ $event->performedBy->name }}</span>
+                </p>
             @endif
 
         </div>
 
-        <small class="text-gray-500 whitespace-nowrap">
+    @empty
 
-            {{ $event->created_at->format('d M Y H:i') }}
+        <p class="text-sm text-slate-400">
+            No activity yet.
+        </p>
 
-        </small>
-
-    </div>
-
-</div>
-
-@empty
-
-    <div class="p-4 text-gray-500">
-
-        No activity yet.
-
-    </div>
-
-@endforelse
+    @endforelse
 
 </div>

@@ -1,135 +1,96 @@
 @extends('layouts.app')
 
+@section('title', ($isClosed ? 'Closed Tickets' : 'My Tickets') . ' · AddustDesk')
+@section('page-title', $isClosed ? 'Closed Tickets' : 'My Tickets')
+@section('page-subtitle', $isClosed
+    ? 'Arsip tiket yang sudah selesai diverifikasi.'
+    : 'Pantau status tiket yang sedang kamu ajukan.')
+
+@unless($isClosed)
+    @section('page-actions')
+        <a href="{{ route('user.tickets.create') }}"
+           class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors">
+            <x-icon name="plus" />
+            New Ticket
+        </a>
+    @endsection
+@endunless
+
 @section('content')
 
-<div class="flex justify-between items-center mb-6">
+    @if($tickets->count())
 
-<h1 class="text-2xl font-bold">
-    {{ $isClosed ? 'Closed Tickets' : 'My Tickets' }}
-</h1>
+        <div class="bg-white border border-border rounded-xl overflow-hidden">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-border bg-slate-50/60">
+                        <th class="text-left font-medium text-xs uppercase tracking-wide text-slate-500 px-4 py-3">Ticket</th>
+                        <th class="text-left font-medium text-xs uppercase tracking-wide text-slate-500 px-4 py-3">Title</th>
+                        <th class="text-left font-medium text-xs uppercase tracking-wide text-slate-500 px-4 py-3">Category</th>
+                        <th class="text-left font-medium text-xs uppercase tracking-wide text-slate-500 px-4 py-3">Priority</th>
+                        <th class="text-left font-medium text-xs uppercase tracking-wide text-slate-500 px-4 py-3">Status</th>
+                        <th class="text-left font-medium text-xs uppercase tracking-wide text-slate-500 px-4 py-3">Department</th>
+                        <th class="text-left font-medium text-xs uppercase tracking-wide text-slate-500 px-4 py-3">Created</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    @foreach($tickets as $ticket)
+                        <tr class="hover:bg-slate-50/60 transition-colors">
+                            <td class="px-4 py-3">
+                                <a href="{{ route('user.tickets.show', $ticket) }}"
+                                   class="font-medium text-accent hover:text-accent-hover hover:underline">
+                                    {{ $ticket->ticket_number }}
+                                </a>
+                            </td>
+                            <td class="px-4 py-3 text-slate-700 max-w-xs truncate">
+                                {{ $ticket->title }}
+                            </td>
+                            <td class="px-4 py-3 text-slate-500">
+                                {{ $ticket->category->name }}
+                            </td>
+                            <td class="px-4 py-3 text-slate-500">
+                                {{ $ticket->priority->name }}
+                            </td>
+                            <td class="px-4 py-3">
+                                <x-status-badge :status="$ticket->status" />
+                            </td>
+                            <td class="px-4 py-3 text-slate-500">
+                                {{ $ticket->currentDepartment->name }}
+                            </td>
+                            <td class="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">
+                                {{ $ticket->created_at->format('d M Y H:i') }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
 
-@if (! $isClosed)
+        <div class="mt-4">
+            {{ $tickets->links() }}
+        </div>
 
-<a
-    href="{{ route('user.tickets.create') }}"
-    class="..."
->
-    Create Ticket
-</a>
+    @else
 
-@endif
+        <div class="bg-white border border-border rounded-xl py-16 px-6 flex flex-col items-center text-center">
+            <div class="w-11 h-11 rounded-full bg-accent-tint text-accent flex items-center justify-center mb-3">
+                <x-icon name="{{ $isClosed ? 'archive' : 'ticket' }}" />
+            </div>
 
-</div>
-
-@if(session('success'))
-
-    <div class="bg-green-100 border border-green-400 text-green-700 p-3 rounded mb-4">
-        {{ session('success') }}
-    </div>
-
-@endif
-
-<table class="w-full border border-gray-300">
-
-    <thead class="bg-gray-200">
-
-        <tr>
-
-            <th class="border p-2">Ticket Number</th>
-
-            <th class="border p-2">Title</th>
-
-            <th class="border p-2">Category</th>
-
-            <th class="border p-2">Priority</th>
-
-            <th class="border p-2">Status</th>
-
-            <th class="border p-2">Department</th>
-
-            <th class="border p-2">Created</th>
-
-        </tr>
-
-    </thead>
-
-    <tbody>
-
-    @forelse($tickets as $ticket)
-
-        <tr>
-
-            <td class="border p-2">
-
-                <a
-                    href="{{ route('user.tickets.show', $ticket) }}"
-                    class="text-blue-600 hover:underline"
-                >
-                    {{ $ticket->ticket_number }}
+            @if($isClosed)
+                <p class="text-sm font-medium text-slate-900">Belum ada tiket yang ditutup</p>
+                <p class="text-sm text-slate-500 mt-1">Tiket yang sudah kamu verifikasi selesai akan muncul di sini.</p>
+            @else
+                <p class="text-sm font-medium text-slate-900">Belum ada tiket</p>
+                <p class="text-sm text-slate-500 mt-1">Punya kendala IT? Buat tiket pertamamu sekarang.</p>
+                <a href="{{ route('user.tickets.create') }}"
+                   class="mt-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors">
+                    <x-icon name="plus" />
+                    New Ticket
                 </a>
+            @endif
+        </div>
 
-            </td>
-
-            <td class="border p-2">
-
-                {{ $ticket->title }}
-
-            </td>
-
-            <td class="border p-2">
-
-                {{ $ticket->category->name }}
-
-            </td>
-
-            <td class="border p-2">
-
-                {{ $ticket->priority->name }}
-
-            </td>
-
-            <td class="border p-2">
-
-                {{ $ticket->status }}
-
-            </td>
-
-            <td class="border p-2">
-
-                {{ $ticket->currentDepartment->name }}
-
-            </td>
-
-            <td class="border p-2">
-
-                {{ $ticket->created_at->format('d M Y H:i') }}
-
-            </td>
-
-        </tr>
-
-    @empty
-
-        <tr>
-
-            <td colspan="7" class="text-center p-4">
-
-                No tickets found.
-
-            </td>
-
-        </tr>
-
-    @endforelse
-
-    </tbody>
-
-</table>
-
-<div class="mt-4">
-
-    {{ $tickets->links() }}
-
-</div>
+    @endif
 
 @endsection

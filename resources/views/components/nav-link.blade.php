@@ -1,11 +1,37 @@
-@props(['active'])
+@props([
+    'href' => '#',
+    'active' => false,
+    'icon' => null,
+    'soon' => false,
+])
 
-@php
-$classes = ($active ?? false)
-            ? 'inline-flex items-center px-1 pt-1 border-b-2 border-indigo-400 text-sm font-medium leading-5 text-gray-900 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out'
-            : 'inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out';
-@endphp
+@if($soon)
 
-<a {{ $attributes->merge(['class' => $classes]) }}>
-    {{ $slot }}
-</a>
+    <div class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-300 select-none">
+        @if($icon)
+            <x-icon :name="$icon" />
+        @endif
+        <span class="flex-1">{{ $slot }}</span>
+        <span class="text-[10px] font-medium uppercase tracking-wide bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded">
+            Soon
+        </span>
+    </div>
+
+@else
+
+    <a href="{{ $href }}"
+       class="group flex items-center gap-3 pl-2.5 pr-3 py-2 rounded-lg text-sm font-medium border-l-[3px] transition-colors
+       {{ $active
+            ? 'bg-accent-tint border-accent text-accent-hover'
+            : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+
+        @if($icon)
+            <span class="{{ $active ? 'text-accent' : 'text-slate-400 group-hover:text-slate-500' }}">
+                <x-icon :name="$icon" />
+            </span>
+        @endif
+
+        <span>{{ $slot }}</span>
+    </a>
+
+@endif
