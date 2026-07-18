@@ -1,110 +1,149 @@
 @extends('layouts.app')
 
+@section('title', 'Admin Dashboard · AddustDesk')
+@section('page-title', 'Admin Dashboard')
+@section('page-subtitle', 'Welcome back, ' . auth()->user()->name)
+
+@section('page-actions')
+    <form action="{{ route('admin.dashboard') }}" method="GET">
+        <select
+            name="period"
+            onchange="this.form.submit()"
+            class="border border-border rounded-lg pl-3 pr-8 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-accent-tint focus:border-accent"
+        >
+            <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>Today</option>
+            <option value="week" {{ request('period') == 'week' ? 'selected' : '' }}>This Week</option>
+            <option value="month" {{ request('period', 'month') == 'month' ? 'selected' : '' }}>This Month</option>
+            <option value="year" {{ request('period') == 'year' ? 'selected' : '' }}>This Year</option>
+        </select>
+    </form>
+@endsection
+
 @section('content')
 
-    {{-- Header --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-            <h1 class="text-2xl font-bold">Admin Dashboard</h1>
-            <p class="mt-1 text-gray-500">Welcome back, {{ auth()->user()->name }}</p>
-        </div>
+    <div class="space-y-6">
 
-        <form action="{{ route('admin.dashboard') }}" method="GET">
-            <select
-                name="period"
-                onchange="this.form.submit()"
-                class="border rounded-lg px-3 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
-            >
-                <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>Today</option>
-                <option value="week" {{ request('period') == 'week' ? 'selected' : '' }}>This Week</option>
-                <option value="month" {{ request('period', 'month') == 'month' ? 'selected' : '' }}>This Month</option>
-                <option value="year" {{ request('period') == 'year' ? 'selected' : '' }}>This Year</option>
-            </select>
-        </form>
-    </div>
+        {{-- KPI Cards --}}
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
 
-    {{-- Ticket Summary Cards --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
-
-        <div class="p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-            <h2 class="text-sm text-gray-500">Total Ticket</h2>
-            <p class="text-3xl font-bold mt-1">{{ $totalTickets }}</p>
-        </div>
-
-        <div class="p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-            <h2 class="text-sm text-gray-500">Open</h2>
-            <p class="text-3xl font-bold mt-1">{{ $openTickets }}</p>
-        </div>
-
-        <div class="p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-            <h2 class="text-sm text-gray-500">In Progress</h2>
-            <p class="text-3xl font-bold mt-1">{{ $inProgressTickets }}</p>
-        </div>
-
-        <div class="p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-            <h2 class="text-sm text-gray-500">Resolved</h2>
-            <p class="text-3xl font-bold mt-1">{{ $resolvedTickets }}</p>
-        </div>
-
-        <div class="p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-            <h2 class="text-sm text-gray-500">Closed</h2>
-            <p class="text-3xl font-bold mt-1">{{ $closedTickets }}</p>
-        </div>
-
-    </div>
-
-    {{-- SLA Summary --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-
-        <div class="p-4 bg-white rounded-xl shadow-sm">
-            <h2 class="font-bold">Response SLA</h2>
-
-            <div class="mt-3 space-y-1">
-                <p>On Time : <span class="font-bold">{{ $responseOnTime }}</span></p>
-                <p>Breached : <span class="font-bold">{{ $responseBreached }}</span></p>
+            <div class="bg-white border border-border rounded-xl p-4">
+                <div class="w-9 h-9 rounded-lg bg-accent-tint text-accent flex items-center justify-center">
+                    <x-icon name="ticket"  />
+                </div>
+                <p class="text-xs text-slate-500 mt-3">Total Ticket</p>
+                <p class="text-2xl font-semibold text-slate-900 mt-0.5">{{ $totalTickets }}</p>
             </div>
-        </div>
 
-        <div class="p-4 bg-white rounded-xl shadow-sm">
-            <h2 class="font-bold">Resolution SLA</h2>
-
-            <div class="mt-3 space-y-1">
-                <p>On Time : <span class="font-bold">{{ $resolutionOnTime }}</span></p>
-                <p>Breached : <span class="font-bold">{{ $resolutionBreached }}</span></p>
+            <div class="bg-white border border-border rounded-xl p-4">
+                <div class="w-9 h-9 rounded-lg bg-status-open/10 text-status-open flex items-center justify-center">
+                    <x-icon name="inbox"  />
+                </div>
+                <p class="text-xs text-slate-500 mt-3">Open</p>
+                <p class="text-2xl font-semibold text-slate-900 mt-0.5">{{ $openTickets }}</p>
             </div>
-        </div>
 
-    </div>
-
-    {{-- Charts: Status & Priority --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h2 class="text-lg font-semibold mb-4">Ticket by Status</h2>
-            <div class="max-w-sm mx-auto">
-                <canvas id="statusChart"></canvas>
+            <div class="bg-white border border-border rounded-xl p-4">
+                <div class="w-9 h-9 rounded-lg bg-status-progress/10 text-status-progress flex items-center justify-center">
+                    <x-icon name="clock"  />
+                </div>
+                <p class="text-xs text-slate-500 mt-3">In Progress</p>
+                <p class="text-2xl font-semibold text-slate-900 mt-0.5">{{ $inProgressTickets }}</p>
             </div>
+
+            <div class="bg-white border border-border rounded-xl p-4">
+                <div class="w-9 h-9 rounded-lg bg-status-resolved/10 text-status-resolved flex items-center justify-center">
+                    <x-icon name="check"  />
+                </div>
+                <p class="text-xs text-slate-500 mt-3">Resolved</p>
+                <p class="text-2xl font-semibold text-slate-900 mt-0.5">{{ $resolvedTickets }}</p>
+            </div>
+
+            <div class="bg-white border border-border rounded-xl p-4">
+                <div class="w-9 h-9 rounded-lg bg-status-closed/10 text-status-closed flex items-center justify-center">
+                    <x-icon name="archive"  />
+                </div>
+                <p class="text-xs text-slate-500 mt-3">Closed</p>
+                <p class="text-2xl font-semibold text-slate-900 mt-0.5">{{ $closedTickets }}</p>
+            </div>
+
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h2 class="text-lg font-semibold mb-4">Ticket by Priority</h2>
-            <canvas id="priorityChart"></canvas>
+        {{-- SLA Summary --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div class="bg-white border border-border rounded-xl p-5">
+                <h2 class="text-sm font-semibold text-slate-900">Response SLA</h2>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-resolved"></span>
+                            On Time
+                        </p>
+                        <p class="text-2xl font-semibold text-slate-900 mt-1">{{ $responseOnTime }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-reopened"></span>
+                            Breached
+                        </p>
+                        <p class="text-2xl font-semibold text-slate-900 mt-1">{{ $responseBreached }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-border rounded-xl p-5">
+                <h2 class="text-sm font-semibold text-slate-900">Resolution SLA</h2>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-resolved"></span>
+                            On Time
+                        </p>
+                        <p class="text-2xl font-semibold text-slate-900 mt-1">{{ $resolutionOnTime }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-reopened"></span>
+                            Breached
+                        </p>
+                        <p class="text-2xl font-semibold text-slate-900 mt-1">{{ $resolutionBreached }}</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-    </div>
+        {{-- Charts: Status & Priority --}}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-    {{-- Chart: Category --}}
-    <div class="mt-6 bg-white rounded-xl shadow-sm p-6">
-        <h2 class="text-lg font-semibold mb-4">Ticket by Category</h2>
-        <div class="w-full mx-auto">
+            <div class="bg-white border border-border rounded-xl p-6">
+                <h2 class="text-sm font-semibold text-slate-900 mb-5">Ticket by Status</h2>
+                <div class="max-w-sm mx-auto">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white border border-border rounded-xl p-6">
+                <h2 class="text-sm font-semibold text-slate-900 mb-5">Ticket by Priority</h2>
+                <canvas id="priorityChart"></canvas>
+            </div>
+
+        </div>
+
+        {{-- Chart: Category --}}
+        <div class="bg-white border border-border rounded-xl p-6">
+            <h2 class="text-sm font-semibold text-slate-900 mb-5">Ticket by Category</h2>
             <canvas id="categoryChart"></canvas>
         </div>
-    </div>
 
-    {{-- Chart: Monthly Trend --}}
-    <div class="mt-6 bg-white rounded-xl shadow-sm p-6">
-        <h2 class="text-lg font-semibold mb-4">Monthly Ticket Trend</h2>
-        <canvas id="monthlyChart"></canvas>
+        {{-- Chart: Monthly Trend --}}
+        <div class="bg-white border border-border rounded-xl p-6">
+            <h2 class="text-sm font-semibold text-slate-900 mb-5">Monthly Ticket Trend</h2>
+            <canvas id="monthlyChart"></canvas>
+        </div>
+
     </div>
 
 @endsection
@@ -112,6 +151,23 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+    // Design tokens (kept in sync with tailwind.config.js)
+    const palette = {
+        accent: '#3D6B99',
+        accentTint: '#EAF1F7',
+        open: '#3D6B99',
+        progress: '#C08A2E',
+        resolved: '#4F9A78',
+        closed: '#94A3A8',
+        reopened: '#C1495A',
+        border: '#E7E4DD',
+        textMuted: '#6B7280',
+    };
+
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = palette.textMuted;
+    Chart.defaults.borderColor = palette.border;
 
     // Ticket by Status (doughnut)
     new Chart(document.getElementById('statusChart'), {
@@ -124,14 +180,20 @@ document.addEventListener('DOMContentLoaded', function () {
                     {{ $statusStatistics['IN_PROGRESS'] }},
                     {{ $statusStatistics['RESOLVED'] }},
                     {{ $statusStatistics['CLOSED'] }}
-                ]
+                ],
+                backgroundColor: [palette.open, palette.progress, palette.resolved, palette.closed],
+                borderWidth: 0,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: true,
+            cutout: '70%',
             plugins: {
-                legend: { position: 'bottom' }
+                legend: {
+                    position: 'bottom',
+                    labels: { usePointStyle: true, pointStyle: 'circle', padding: 16 }
+                }
             }
         }
     });
@@ -143,13 +205,18 @@ document.addEventListener('DOMContentLoaded', function () {
             labels: @json($priorityStatistics->pluck('name')),
             datasets: [{
                 label: 'Tickets',
-                data: @json($priorityStatistics->pluck('total'))
+                data: @json($priorityStatistics->pluck('total')),
+                backgroundColor: palette.accent,
+                borderRadius: 6,
+                maxBarThickness: 36,
             }]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: false }
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, ticks: { precision: 0 } }
             }
         }
     });
@@ -161,13 +228,18 @@ document.addEventListener('DOMContentLoaded', function () {
             labels: @json($categoryStatistics->pluck('name')),
             datasets: [{
                 label: 'Tickets',
-                data: @json($categoryStatistics->pluck('total'))
+                data: @json($categoryStatistics->pluck('total')),
+                backgroundColor: palette.accent,
+                borderRadius: 6,
+                maxBarThickness: 36,
             }]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: false }
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, ticks: { precision: 0 } }
             }
         }
     });
@@ -191,14 +263,20 @@ document.addEventListener('DOMContentLoaded', function () {
             datasets: [{
                 label: 'Tickets',
                 data: monthlyData,
+                borderColor: palette.accent,
+                backgroundColor: palette.accentTint,
+                pointBackgroundColor: palette.accent,
+                pointRadius: 3,
                 tension: 0.3,
-                fill: false
+                fill: true,
             }]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: false }
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, ticks: { precision: 0 } }
             }
         }
     });

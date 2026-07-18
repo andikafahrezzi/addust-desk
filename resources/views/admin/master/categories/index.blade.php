@@ -1,118 +1,88 @@
 @extends('layouts.app')
 
-@section('content')
+@section('title', 'Categories · AddustDesk')
+@section('page-title', 'Categories')
+@section('page-subtitle', 'Kelola daftar kategori tiket.')
 
-<div class="flex items-center justify-between mb-6">
-
-    <h1 class="text-2xl font-bold">
-
-        Categories
-
-    </h1>
-
-    <a
-        href="{{ route('admin.categories.create') }}"
-        class="bg-blue-600 text-white px-4 py-2 rounded"
-    >
+@section('page-actions')
+    <a href="{{ route('admin.categories.create') }}"
+       class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors">
+        <x-icon name="plus" />
         Create Category
     </a>
+@endsection
 
-</div>
+@section('content')
 
-@if($categories->isEmpty())
+    @if($categories->count())
 
-<div class="border rounded p-6">
+        <div class="bg-white border border-border rounded-xl overflow-hidden">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-border bg-slate-50/60">
+                        <th class="text-left font-medium text-xs uppercase tracking-wide text-slate-500 px-4 py-3">Name</th>
+                        <th class="text-left font-medium text-xs uppercase tracking-wide text-slate-500 px-4 py-3">Created</th>
+                        <th class="text-center font-medium text-xs uppercase tracking-wide text-slate-500 px-4 py-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    @foreach($categories as $category)
+                        <tr class="hover:bg-slate-50/60 transition-colors">
+                            <td class="px-4 py-3 font-medium text-slate-900">
+                                {{ $category->name }}
+                            </td>
+                            <td class="px-4 py-3 text-slate-500">
+                                {{ $category->created_at->format('d M Y H:i') }}
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center justify-center gap-3">
 
-    No categories found.
+                                    <a href="{{ route('admin.categories.edit', $category) }}"
+                                       class="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-hover transition">
+                                        <x-icon name="pencil" class="w-3.5 h-3.5" />
+                                        Edit
+                                    </a>
 
-</div>
+                                    <span class="w-px h-4 bg-border"></span>
 
-@else
+                                    <form method="POST" action="{{ route('admin.categories.destroy', $category) }}"
+                                          onsubmit="return confirm('Delete this category?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 transition">
+                                            <x-icon name="trash" class="w-3.5 h-3.5" />
+                                            Delete
+                                        </button>
+                                    </form>
 
-<table class="w-full border-collapse">
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
 
-    <thead>
+        <div class="mt-4">
+            {{ $categories->links() }}
+        </div>
 
-        <tr class="border-b">
+    @else
 
-            <th class="text-left p-3">
-                Name
-            </th>
+        <div class="bg-white border border-border rounded-xl py-16 px-6 flex flex-col items-center text-center">
+            <div class="w-11 h-11 rounded-full bg-accent-tint text-accent flex items-center justify-center mb-3">
+                <x-icon name="tag" />
+            </div>
+            <p class="text-sm font-medium text-slate-900">Belum ada category</p>
+            <p class="text-sm text-slate-500 mt-1">Category dipakai buat mengklasifikasikan tiket.</p>
+            <a href="{{ route('admin.categories.create') }}"
+               class="mt-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors">
+                <x-icon name="plus" />
+                Create Category
+            </a>
+        </div>
 
-            <th class="text-left p-3">
-                Created
-            </th>
-
-            <th class="text-center p-3">
-                Action
-            </th>
-
-        </tr>
-
-    </thead>
-
-    <tbody>
-
-    @foreach($categories as $category)
-
-        <tr class="border-b hover:bg-gray-50">
-
-            <td class="p-3">
-
-                {{ $category->name }}
-
-            </td>
-
-            <td class="p-3">
-
-                {{ $category->created_at->format('d M Y H:i') }}
-
-            </td>
-
-            <td class="p-3 text-center">
-
-                <a
-                    href="{{ route('admin.categories.edit', $category) }}"
-                    class="text-yellow-600 hover:underline"
-                >
-                    Edit
-                </a>
-
-                <form
-                    action="{{ route('admin.categories.destroy', $category) }}"
-                    method="POST"
-                    class="inline"
-                    onsubmit="return confirm('Delete this category?')"
-                >
-
-                    @csrf
-                    @method('DELETE')
-
-                    <button
-                        type="submit"
-                        class="text-red-600 ml-3"
-                    >
-                        Delete
-                    </button>
-
-                </form>
-
-            </td>
-
-        </tr>
-
-    @endforeach
-
-    </tbody>
-
-</table>
-
-<div class="mt-6">
-
-    {{ $categories->links() }}
-
-</div>
-
-@endif
+    @endif
 
 @endsection

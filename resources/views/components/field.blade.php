@@ -1,6 +1,6 @@
 @props(['label', 'name', 'error' => null])
 
-<div class="mb-5">
+<div {{ $attributes->merge(['class' => 'mb-5']) }}>
 
     <label for="{{ $name }}" class="block text-sm font-medium text-slate-700 mb-1.5">
         {{ $label }}

@@ -19,27 +19,20 @@
 
     @include('admin.master.users._form')
 
-    <div class="flex gap-3 mt-6">
+    <div class="flex items-center justify-end gap-3 pt-4 mt-2 border-t border-border">
 
-        <button
-            type="submit"
-            class="bg-blue-600 text-white px-4 py-2 rounded"
-        >
+    <a href="{{ route('admin.users.index') }}"
+       class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+        Cancel
+    </a>
 
-            Save
+    <button type="submit"
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors">
+        <x-icon name="check" class="w-4 h-4" />
+        Save
+    </button>
 
-        </button>
-
-        <a
-            href="{{ route('admin.users.index') }}"
-            class="border px-4 py-2 rounded"
-        >
-
-            Cancel
-
-        </a>
-
-    </div>
+</div>
 
 </form>
 
